@@ -9,30 +9,27 @@
 
 <style>
 body{
-  background: linear-gradient(135deg,#eef2ff,#f1f5f9);
+  background: linear-gradient(135deg,#e0e7ff,#f8fafc);
 }
 
-/* 拟态卡片 */
-.neo{
-  background:#f3f4f6;
+/* 高级卡片 */
+.glass{
+  background: rgba(255,255,255,0.6);
+  backdrop-filter: blur(20px);
   border-radius:20px;
-  box-shadow:
-    8px 8px 16px #d1d5db,
-    -8px -8px 16px #ffffff;
-}
-
-/* 内嵌拟态 */
-.neo-inset{
-  background:#f3f4f6;
-  border-radius:20px;
-  box-shadow:
-    inset 4px 4px 10px #d1d5db,
-    inset -4px -4px 10px #ffffff;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.08);
 }
 
 /* 卡片hover */
-.tool:hover{
-  transform: translateY(-4px);
+.card:hover{
+  transform: translateY(-6px) scale(1.02);
+  transition: 0.3s;
+}
+
+/* 渐变按钮 */
+.btn{
+  background: linear-gradient(135deg,#6366f1,#8b5cf6);
+  color:white;
 }
 </style>
 </head>
@@ -42,24 +39,23 @@ body{
 <div class="grid grid-cols-[240px_1fr] gap-6">
 
 <!-- 左侧 -->
-<div class="neo p-5 flex flex-col justify-between">
+<div class="glass p-5 flex flex-col justify-between">
 
   <div>
-    <h1 class="text-lg font-bold text-indigo-600 mb-6">
+    <h1 class="text-xl font-bold text-indigo-600 mb-6">
       🐱 AI猫导航
     </h1>
 
-    <div class="space-y-4 text-gray-700">
-      <div class="p-3 rounded-xl hover:bg-white cursor-pointer">首页</div>
-      <div class="p-3 rounded-xl hover:bg-white cursor-pointer">AI工具</div>
-      <div class="p-3 rounded-xl hover:bg-white cursor-pointer">分类</div>
+    <div class="space-y-4">
+      <div class="p-3 rounded-xl hover:bg-white cursor-pointer">🏠 首页</div>
+      <div class="p-3 rounded-xl hover:bg-white cursor-pointer">🤖 AI工具</div>
+      <div class="p-3 rounded-xl hover:bg-white cursor-pointer">📚 分类</div>
     </div>
   </div>
 
-  <!-- 猫提示 -->
-  <div class="neo-inset p-4 text-sm text-gray-600">
-    <div class="font-semibold">喵～需要帮助吗？</div>
-    <div class="text-gray-400">我可以帮你找AI工具</div>
+  <div class="glass p-4 text-sm">
+    <div class="font-semibold">😺 喵～需要帮助吗？</div>
+    <div class="text-gray-500">我可以帮你找AI工具</div>
   </div>
 
 </div>
@@ -67,39 +63,36 @@ body{
 <!-- 主区域 -->
 <div class="space-y-6">
 
-<!-- 标题 + 搜索 -->
-<div class="neo p-6">
+<!-- 标题 -->
+<div class="glass p-6">
   <h1 class="text-4xl font-bold">
     发现最佳 <span class="text-indigo-500">AI工具</span>
   </h1>
 
   <input id="search"
-    class="mt-4 w-full p-4 rounded-xl neo-inset outline-none"
-    placeholder="搜索 AI 工具..." />
+    class="mt-4 w-full p-4 rounded-xl border-0 outline-none shadow-inner"
+    placeholder="🔍 搜索 AI 工具..." />
 </div>
 
-<!-- 内容区 -->
+<!-- 内容 -->
 <div class="grid grid-cols-3 gap-6">
 
-<!-- 工具区 -->
-<div class="col-span-2 neo p-5">
-  <h2 class="mb-4 font-bold flex items-center gap-2">
-    🔥 热门工具
-  </h2>
-
+<!-- 工具 -->
+<div class="col-span-2 glass p-5">
+  <h2 class="mb-4 font-bold">🔥 热门工具</h2>
   <div id="tools" class="grid grid-cols-2 gap-4"></div>
 </div>
 
 <!-- 天气 -->
-<div class="neo p-5">
-  <h3 class="font-semibold mb-2">天气</h3>
-  <div id="weather" class="text-4xl font-bold">--</div>
-  <div id="city" class="text-gray-400 text-sm"></div>
+<div class="glass p-5">
+  <h3 class="font-semibold mb-2">🌤 天气</h3>
+  <div id="weather" class="text-4xl font-bold"></div>
+  <div id="city" class="text-gray-500"></div>
 </div>
 
 <!-- 时钟 -->
-<div class="neo p-5 text-center">
-  <h3 class="font-semibold">时钟</h3>
+<div class="glass p-5 text-center">
+  <h3 class="font-semibold">⏰ 时钟</h3>
   <div id="clock" class="text-4xl mt-2 font-bold"></div>
 </div>
 
@@ -107,81 +100,45 @@ body{
 </div>
 </div>
 
-<!-- 弹窗 -->
-<div id="modal" class="hidden fixed inset-0 bg-black/40 flex items-center justify-center">
-  <div class="neo p-6 w-[360px]">
-    <h2 id="mTitle" class="text-xl font-bold"></h2>
-    <p id="mDesc" class="mt-2 text-gray-500"></p>
-
-    <a id="mLink" target="_blank"
-       class="block mt-4 bg-indigo-500 text-white text-center py-2 rounded-xl">
-       访问官网
-    </a>
-
-    <button onclick="closeModal()" class="mt-3 w-full text-gray-500">
-      关闭
-    </button>
-  </div>
-</div>
-
 <script>
-// 数据
 const tools = [
-  {name:"ChatGPT",desc:"AI对话工具",url:"https://chat.openai.com"},
-  {name:"Claude",desc:"高级AI助手",url:"https://claude.ai"},
-  {name:"Midjourney",desc:"AI绘画",url:"https://www.midjourney.com"},
+  {name:"ChatGPT",desc:"AI对话",url:"https://chat.openai.com"},
+  {name:"Claude",desc:"AI助手",url:"https://claude.ai"},
+  {name:"Midjourney",desc:"AI绘画",url:"https://midjourney.com"},
   {name:"Runway",desc:"AI视频",url:"https://runwayml.com"},
-  {name:"Notion AI",desc:"AI写作",url:"https://www.notion.so"},
-  {name:"Perplexity",desc:"AI搜索",url:"https://www.perplexity.ai"}
+  {name:"Notion AI",desc:"AI写作",url:"https://notion.so"},
+  {name:"Perplexity",desc:"AI搜索",url:"https://perplexity.ai"}
 ];
 
-// 渲染
 function render(list){
   const el = document.getElementById("tools");
   el.innerHTML = "";
   list.forEach(t=>{
     el.innerHTML += `
-      <div class="neo p-4 tool cursor-pointer"
-           onclick="openModal('${t.name}','${t.desc}','${t.url}')">
+      <a href="${t.url}" target="_blank"
+         class="glass p-4 card block">
         <div class="font-semibold">${t.name}</div>
         <div class="text-sm text-gray-500">${t.desc}</div>
-      </div>
+      </a>
     `;
   });
 }
 render(tools);
 
-// 搜索
 search.oninput = e=>{
   const v = e.target.value.toLowerCase();
   render(tools.filter(t=>t.name.toLowerCase().includes(v)));
 };
 
-// 弹窗
-function openModal(name,desc,url){
-  modal.classList.remove("hidden");
-  mTitle.innerText = name;
-  mDesc.innerText = desc;
-  mLink.href = url;
-}
-function closeModal(){
-  modal.classList.add("hidden");
-}
-
-// 时钟
 setInterval(()=>{
   clock.innerText = new Date().toLocaleTimeString();
 },1000);
 
-// 天气
 fetch("https://wttr.in/?format=j1")
-.then(res=>res.json())
-.then(data=>{
-  weather.innerText = data.current_condition[0].temp_C + "°";
-  city.innerText = data.current_condition[0].weatherDesc[0].value;
-})
-.catch(()=>{
-  weather.innerText = "--";
+.then(r=>r.json())
+.then(d=>{
+  weather.innerText = d.current_condition[0].temp_C+"°";
+  city.innerText = d.current_condition[0].weatherDesc[0].value;
 });
 </script>
 
