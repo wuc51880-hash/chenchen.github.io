@@ -1,81 +1,106 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AI猫导航</title>
 
 <script src="https://cdn.tailwindcss.com"></script>
 
 <style>
-body {
-  background: linear-gradient(135deg, #eef2ff, #f8fafc);
+body{
+  background: linear-gradient(135deg,#eef2ff,#f1f5f9);
 }
-.card {
-  box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-  transition: 0.3s;
+
+/* 拟态卡片 */
+.neo{
+  background:#f3f4f6;
+  border-radius:20px;
+  box-shadow:
+    8px 8px 16px #d1d5db,
+    -8px -8px 16px #ffffff;
 }
-.card:hover {
-  transform: translateY(-5px);
+
+/* 内嵌拟态 */
+.neo-inset{
+  background:#f3f4f6;
+  border-radius:20px;
+  box-shadow:
+    inset 4px 4px 10px #d1d5db,
+    inset -4px -4px 10px #ffffff;
+}
+
+/* 卡片hover */
+.tool:hover{
+  transform: translateY(-4px);
 }
 </style>
 </head>
 
 <body class="p-6 font-sans">
 
-<div class="grid grid-cols-[260px_1fr] gap-6">
+<div class="grid grid-cols-[240px_1fr] gap-6">
 
-<!-- Sidebar -->
-<div class="bg-white/70 backdrop-blur-xl rounded-3xl p-5 card">
-  <h1 class="text-xl font-bold text-indigo-600 mb-6">🐱 AI猫导航</h1>
+<!-- 左侧 -->
+<div class="neo p-5 flex flex-col justify-between">
 
-  <div class="space-y-3">
-    <div class="p-3 rounded-xl hover:bg-white cursor-pointer">首页</div>
-    <div class="p-3 rounded-xl hover:bg-white cursor-pointer">AI工具</div>
-    <div class="p-3 rounded-xl hover:bg-white cursor-pointer">分类</div>
+  <div>
+    <h1 class="text-lg font-bold text-indigo-600 mb-6">
+      🐱 AI猫导航
+    </h1>
+
+    <div class="space-y-4 text-gray-700">
+      <div class="p-3 rounded-xl hover:bg-white cursor-pointer">首页</div>
+      <div class="p-3 rounded-xl hover:bg-white cursor-pointer">AI工具</div>
+      <div class="p-3 rounded-xl hover:bg-white cursor-pointer">分类</div>
+    </div>
   </div>
 
-  <div class="mt-10 p-4 bg-indigo-50 rounded-2xl text-sm">
+  <!-- 猫提示 -->
+  <div class="neo-inset p-4 text-sm text-gray-600">
     <div class="font-semibold">喵～需要帮助吗？</div>
-    <div class="text-gray-500">我可以帮你找AI工具</div>
+    <div class="text-gray-400">我可以帮你找AI工具</div>
   </div>
+
 </div>
 
-<!-- Main -->
+<!-- 主区域 -->
 <div class="space-y-6">
 
-<!-- Header -->
-<div class="bg-white/70 backdrop-blur-xl rounded-3xl p-6 card">
+<!-- 标题 + 搜索 -->
+<div class="neo p-6">
   <h1 class="text-4xl font-bold">
     发现最佳 <span class="text-indigo-500">AI工具</span>
   </h1>
 
   <input id="search"
-    class="mt-4 w-full p-3 rounded-xl border"
-    placeholder="搜索 AI 工具..."
-  />
+    class="mt-4 w-full p-4 rounded-xl neo-inset outline-none"
+    placeholder="搜索 AI 工具..." />
 </div>
 
-<!-- Grid -->
+<!-- 内容区 -->
 <div class="grid grid-cols-3 gap-6">
 
-<!-- 工具 -->
-<div class="col-span-2 bg-white/70 rounded-3xl p-5 card">
-  <h2 class="mb-4 font-bold">🔥 热门工具</h2>
+<!-- 工具区 -->
+<div class="col-span-2 neo p-5">
+  <h2 class="mb-4 font-bold flex items-center gap-2">
+    🔥 热门工具
+  </h2>
+
   <div id="tools" class="grid grid-cols-2 gap-4"></div>
 </div>
 
 <!-- 天气 -->
-<div class="bg-white/70 rounded-3xl p-5 card">
+<div class="neo p-5">
   <h3 class="font-semibold mb-2">天气</h3>
-  <div id="weather" class="text-3xl">加载中...</div>
-  <div id="city" class="text-gray-500 text-sm"></div>
+  <div id="weather" class="text-4xl font-bold">--</div>
+  <div id="city" class="text-gray-400 text-sm"></div>
 </div>
 
 <!-- 时钟 -->
-<div class="bg-white/70 rounded-3xl p-5 card text-center">
+<div class="neo p-5 text-center">
   <h3 class="font-semibold">时钟</h3>
-  <div id="clock" class="text-3xl mt-2"></div>
+  <div id="clock" class="text-4xl mt-2 font-bold"></div>
 </div>
 
 </div>
@@ -84,7 +109,7 @@ body {
 
 <!-- 弹窗 -->
 <div id="modal" class="hidden fixed inset-0 bg-black/40 flex items-center justify-center">
-  <div class="bg-white rounded-2xl p-6 w-[360px]">
+  <div class="neo p-6 w-[360px]">
     <h2 id="mTitle" class="text-xl font-bold"></h2>
     <p id="mDesc" class="mt-2 text-gray-500"></p>
 
@@ -100,7 +125,7 @@ body {
 </div>
 
 <script>
-// ===== 数据 =====
+// 数据
 const tools = [
   {name:"ChatGPT",desc:"AI对话工具",url:"https://chat.openai.com"},
   {name:"Claude",desc:"高级AI助手",url:"https://claude.ai"},
@@ -116,7 +141,7 @@ function render(list){
   el.innerHTML = "";
   list.forEach(t=>{
     el.innerHTML += `
-      <div class="card bg-white p-4 rounded-xl cursor-pointer"
+      <div class="neo p-4 tool cursor-pointer"
            onclick="openModal('${t.name}','${t.desc}','${t.url}')">
         <div class="font-semibold">${t.name}</div>
         <div class="text-sm text-gray-500">${t.desc}</div>
@@ -127,9 +152,9 @@ function render(list){
 render(tools);
 
 // 搜索
-search.oninput = e => {
+search.oninput = e=>{
   const v = e.target.value.toLowerCase();
-  render(tools.filter(t => t.name.toLowerCase().includes(v)));
+  render(tools.filter(t=>t.name.toLowerCase().includes(v)));
 };
 
 // 弹窗
@@ -148,17 +173,15 @@ setInterval(()=>{
   clock.innerText = new Date().toLocaleTimeString();
 },1000);
 
-// 天气（免费API）
+// 天气
 fetch("https://wttr.in/?format=j1")
 .then(res=>res.json())
 .then(data=>{
-  const temp = data.current_condition[0].temp_C;
-  const desc = data.current_condition[0].weatherDesc[0].value;
-  weather.innerText = temp + "°";
-  city.innerText = desc;
+  weather.innerText = data.current_condition[0].temp_C + "°";
+  city.innerText = data.current_condition[0].weatherDesc[0].value;
 })
 .catch(()=>{
-  weather.innerText = "天气加载失败";
+  weather.innerText = "--";
 });
 </script>
 
