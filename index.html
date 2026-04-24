@@ -1,138 +1,167 @@
-// 🚀 Dribbble级 UI（可直接运行）
-// 技术栈：React + TailwindCSS + Framer Motion
-// 使用：直接复制到 Vite / Next.js 项目即可
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AI猫导航</title>
 
-import React, { useEffect, useState } from "react";
-import { motion } from "framer-motion";
-import { Search, Sparkles, Flame } from "lucide-react";
+<script src="https://cdn.tailwindcss.com"></script>
 
-// ================= 主页面 =================
-export default function App() {
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-[#eef2ff] to-[#f8fafc] p-6 font-sans">
-      <div className="grid grid-cols-[260px_1fr] gap-6">
-        <Sidebar />
-        <Main />
+<style>
+body {
+  background: linear-gradient(135deg, #eef2ff, #f8fafc);
+}
+.card {
+  box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+  transition: 0.3s;
+}
+.card:hover {
+  transform: translateY(-5px);
+}
+</style>
+</head>
+
+<body class="p-6 font-sans">
+
+<div class="grid grid-cols-[260px_1fr] gap-6">
+
+<!-- Sidebar -->
+<div class="bg-white/70 backdrop-blur-xl rounded-3xl p-5 card">
+  <h1 class="text-xl font-bold text-indigo-600 mb-6">🐱 AI猫导航</h1>
+
+  <div class="space-y-3">
+    <div class="p-3 rounded-xl hover:bg-white cursor-pointer">首页</div>
+    <div class="p-3 rounded-xl hover:bg-white cursor-pointer">AI工具</div>
+    <div class="p-3 rounded-xl hover:bg-white cursor-pointer">分类</div>
+  </div>
+
+  <div class="mt-10 p-4 bg-indigo-50 rounded-2xl text-sm">
+    <div class="font-semibold">喵～需要帮助吗？</div>
+    <div class="text-gray-500">我可以帮你找AI工具</div>
+  </div>
+</div>
+
+<!-- Main -->
+<div class="space-y-6">
+
+<!-- Header -->
+<div class="bg-white/70 backdrop-blur-xl rounded-3xl p-6 card">
+  <h1 class="text-4xl font-bold">
+    发现最佳 <span class="text-indigo-500">AI工具</span>
+  </h1>
+
+  <input id="search"
+    class="mt-4 w-full p-3 rounded-xl border"
+    placeholder="搜索 AI 工具..."
+  />
+</div>
+
+<!-- Grid -->
+<div class="grid grid-cols-3 gap-6">
+
+<!-- 工具 -->
+<div class="col-span-2 bg-white/70 rounded-3xl p-5 card">
+  <h2 class="mb-4 font-bold">🔥 热门工具</h2>
+  <div id="tools" class="grid grid-cols-2 gap-4"></div>
+</div>
+
+<!-- 天气 -->
+<div class="bg-white/70 rounded-3xl p-5 card">
+  <h3 class="font-semibold mb-2">天气</h3>
+  <div id="weather" class="text-3xl">加载中...</div>
+  <div id="city" class="text-gray-500 text-sm"></div>
+</div>
+
+<!-- 时钟 -->
+<div class="bg-white/70 rounded-3xl p-5 card text-center">
+  <h3 class="font-semibold">时钟</h3>
+  <div id="clock" class="text-3xl mt-2"></div>
+</div>
+
+</div>
+</div>
+</div>
+
+<!-- 弹窗 -->
+<div id="modal" class="hidden fixed inset-0 bg-black/40 flex items-center justify-center">
+  <div class="bg-white rounded-2xl p-6 w-[360px]">
+    <h2 id="mTitle" class="text-xl font-bold"></h2>
+    <p id="mDesc" class="mt-2 text-gray-500"></p>
+
+    <a id="mLink" target="_blank"
+       class="block mt-4 bg-indigo-500 text-white text-center py-2 rounded-xl">
+       访问官网
+    </a>
+
+    <button onclick="closeModal()" class="mt-3 w-full text-gray-500">
+      关闭
+    </button>
+  </div>
+</div>
+
+<script>
+// ===== 数据 =====
+const tools = [
+  {name:"ChatGPT",desc:"AI对话工具",url:"https://chat.openai.com"},
+  {name:"Claude",desc:"高级AI助手",url:"https://claude.ai"},
+  {name:"Midjourney",desc:"AI绘画",url:"https://www.midjourney.com"},
+  {name:"Runway",desc:"AI视频",url:"https://runwayml.com"},
+  {name:"Notion AI",desc:"AI写作",url:"https://www.notion.so"},
+  {name:"Perplexity",desc:"AI搜索",url:"https://www.perplexity.ai"}
+];
+
+// 渲染
+function render(list){
+  const el = document.getElementById("tools");
+  el.innerHTML = "";
+  list.forEach(t=>{
+    el.innerHTML += `
+      <div class="card bg-white p-4 rounded-xl cursor-pointer"
+           onclick="openModal('${t.name}','${t.desc}','${t.url}')">
+        <div class="font-semibold">${t.name}</div>
+        <div class="text-sm text-gray-500">${t.desc}</div>
       </div>
-    </div>
-  );
+    `;
+  });
+}
+render(tools);
+
+// 搜索
+search.oninput = e => {
+  const v = e.target.value.toLowerCase();
+  render(tools.filter(t => t.name.toLowerCase().includes(v)));
+};
+
+// 弹窗
+function openModal(name,desc,url){
+  modal.classList.remove("hidden");
+  mTitle.innerText = name;
+  mDesc.innerText = desc;
+  mLink.href = url;
+}
+function closeModal(){
+  modal.classList.add("hidden");
 }
 
-// ================= Sidebar =================
-function Sidebar() {
-  return (
-    <div className="bg-white/70 backdrop-blur-xl rounded-3xl p-5 shadow-xl">
-      <div className="text-xl font-bold text-indigo-600 mb-6 flex items-center gap-2">
-        🐱 AI猫导航
-      </div>
+// 时钟
+setInterval(()=>{
+  clock.innerText = new Date().toLocaleTimeString();
+},1000);
 
-      {['首页','AI工具','分类','榜单'].map((item,i)=> (
-        <div key={i} className="p-3 rounded-xl hover:bg-white/80 cursor-pointer">
-          {item}
-        </div>
-      ))}
+// 天气（免费API）
+fetch("https://wttr.in/?format=j1")
+.then(res=>res.json())
+.then(data=>{
+  const temp = data.current_condition[0].temp_C;
+  const desc = data.current_condition[0].weatherDesc[0].value;
+  weather.innerText = temp + "°";
+  city.innerText = desc;
+})
+.catch(()=>{
+  weather.innerText = "天气加载失败";
+});
+</script>
 
-      <div className="mt-10 p-4 bg-indigo-50 rounded-2xl text-sm">
-        <div className="font-semibold">喵～需要帮助吗？</div>
-        <div className="text-gray-500 mt-1">我可以帮你找AI工具</div>
-      </div>
-    </div>
-  );
-}
-
-// ================= Main =================
-function Main() {
-  return (
-    <div className="space-y-6">
-      <Header />
-      <DashboardGrid />
-    </div>
-  );
-}
-
-// ================= Header =================
-function Header() {
-  return (
-    <div className="bg-white/70 backdrop-blur-xl rounded-3xl p-6 shadow-xl">
-      <h1 className="text-4xl font-bold">
-        发现最佳 <span className="text-indigo-500">AI工具</span>
-      </h1>
-
-      <div className="mt-4 flex items-center bg-white rounded-xl p-3 shadow-inner">
-        <Search className="text-gray-400" />
-        <input className="ml-3 w-full outline-none" placeholder="搜索 AI 工具..." />
-      </div>
-    </div>
-  );
-}
-
-// ================= Dashboard =================
-function DashboardGrid() {
-  return (
-    <div className="grid grid-cols-3 gap-6">
-      <Tools />
-      <Weather />
-      <Clock />
-    </div>
-  );
-}
-
-// ================= 工具卡 =================
-function Tools() {
-  const tools = ['ChatGPT','Midjourney','Notion AI','Runway'];
-
-  return (
-    <div className="col-span-2 bg-white/70 backdrop-blur-xl rounded-3xl p-5 shadow-xl">
-      <div className="flex items-center gap-2 mb-4">
-        <Flame className="text-orange-400" /> 热门工具
-      </div>
-
-      <div className="grid grid-cols-2 gap-4">
-        {tools.map((t,i)=>(
-          <motion.div
-            whileHover={{ y:-5 }}
-            key={i}
-            className="p-4 bg-white rounded-xl shadow hover:shadow-lg cursor-pointer"
-          >
-            <div className="text-lg font-semibold">{t}</div>
-            <div className="text-sm text-gray-500 mt-1">AI工具描述</div>
-          </motion.div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-// ================= 天气 =================
-function Weather() {
-  return (
-    <div className="bg-white/70 backdrop-blur-xl rounded-3xl p-5 shadow-xl">
-      <div className="flex items-center gap-2 mb-2">
-        <Sparkles /> 天气
-      </div>
-
-      <div className="text-4xl font-light">26° ☀️</div>
-      <div className="text-gray-500 text-sm">晴 · 湿度42%</div>
-    </div>
-  );
-}
-
-// ================= 时钟 =================
-function Clock() {
-  const [time,setTime] = useState(new Date());
-
-  useEffect(()=>{
-    const t = setInterval(()=>setTime(new Date()),1000);
-    return ()=>clearInterval(t);
-  },[]);
-
-  return (
-    <div className="bg-white/70 backdrop-blur-xl rounded-3xl p-5 shadow-xl text-center">
-      <div className="text-sm text-gray-500">时钟</div>
-      <div className="text-3xl mt-2">
-        {time.toLocaleTimeString()}
-      </div>
-    </div>
-  );
-}
+</body>
+</html>
 
