@@ -1,847 +1,138 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI猫导航</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: "Microsoft YaHei", -apple-system, BlinkMacSystemFont, sans-serif;
-        }
+// 🚀 Dribbble级 UI（可直接运行）
+// 技术栈：React + TailwindCSS + Framer Motion
+// 使用：直接复制到 Vite / Next.js 项目即可
 
-        body {
-            background: linear-gradient(135deg, #f0f4ff 0%, #e8f0ff 100%);
-            min-height: 100vh;
-            padding: 20px;
-            display: flex;
-            gap: 20px;
-        }
+import React, { useEffect, useState } from "react";
+import { motion } from "framer-motion";
+import { Search, Sparkles, Flame } from "lucide-react";
 
-        /* 左侧导航栏 */
-        .sidebar {
-            width: 180px;
-            background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(10px);
-            border-radius: 16px;
-            padding: 20px 0;
-            display: flex;
-            flex-direction: column;
-            gap: 30px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-        }
-
-        .sidebar-logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 0 20px;
-            font-size: 20px;
-            font-weight: bold;
-            color: #4080ff;
-        }
-
-        .sidebar-menu {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .sidebar-menu a {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px 20px;
-            text-decoration: none;
-            color: #666;
-            border-radius: 8px;
-            transition: all 0.2s ease;
-        }
-
-        .sidebar-menu a:hover,
-        .sidebar-menu a.active {
-            background: #4080ff;
-            color: white;
-        }
-
-        .sidebar-menu a i {
-            font-size: 18px;
-        }
-
-        .sidebar-footer {
-            margin-top: auto;
-            padding: 0 20px;
-        }
-
-        .sidebar-footer .cat-tip {
-            background: linear-gradient(135deg, #e8f0ff, #f0f4ff);
-            border-radius: 12px;
-            padding: 15px;
-            text-align: center;
-            font-size: 14px;
-            color: #666;
-        }
-
-        .sidebar-footer .cat-tip img {
-            width: 60px;
-            margin-bottom: 10px;
-            border-radius: 50%;
-        }
-
-        .sidebar-footer .random-btn {
-            width: 100%;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-            border: none;
-            padding: 10px;
-            border-radius: 20px;
-            margin-top: 10px;
-            cursor: pointer;
-        }
-
-        /* 主内容区 */
-        .main {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        /* 顶部区域 */
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            gap: 20px;
-        }
-
-        .header-left {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .header-title {
-            text-align: center;
-        }
-
-        .header-title h1 {
-            font-size: 28px;
-            color: #333;
-            margin-bottom: 8px;
-        }
-
-        .header-title p {
-            color: #666;
-            font-size: 16px;
-        }
-
-        .header-search {
-            width: 100%;
-            max-width: 600px;
-            position: relative;
-        }
-
-        .header-search input {
-            width: 100%;
-            padding: 15px 20px;
-            border: none;
-            border-radius: 30px;
-            background: white;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-            outline: none;
-            font-size: 16px;
-        }
-
-        .header-search button {
-            position: absolute;
-            right: 8px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-            border: none;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            cursor: pointer;
-        }
-
-        .header-cat {
-            position: absolute;
-            left: -120px;
-            top: 50px;
-            width: 120px;
-        }
-
-        /* 右侧天气+时钟 */
-        .header-right {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        .weather-card {
-            background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(10px);
-            border-radius: 16px;
-            padding: 20px;
-            width: 200px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-        }
-
-        .weather-top {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-
-        .weather-temp {
-            font-size: 48px;
-            font-weight: bold;
-            color: #4080ff;
-        }
-
-        .weather-info {
-            display: flex;
-            gap: 15px;
-            font-size: 14px;
-            color: #666;
-            margin-bottom: 15px;
-        }
-
-        .weather-days {
-            display: flex;
-            justify-content: space-between;
-            text-align: center;
-            font-size: 12px;
-            color: #666;
-        }
-
-        .clock-card {
-            background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(10px);
-            border-radius: 16px;
-            padding: 20px;
-            width: 200px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-            text-align: center;
-        }
-
-        .clock-time {
-            font-size: 32px;
-            font-weight: bold;
-            color: #333;
-            margin-bottom: 8px;
-        }
-
-        .clock-date {
-            font-size: 14px;
-            color: #666;
-        }
-
-        /* 分类标签 */
-        .category-tabs {
-            display: flex;
-            gap: 15px;
-            overflow-x: auto;
-            padding-bottom: 10px;
-        }
-
-        .category-tab {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 8px;
-            padding: 10px 15px;
-            background: rgba(255, 255, 255, 0.8);
-            border-radius: 12px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            min-width: 80px;
-        }
-
-        .category-tab:hover,
-        .category-tab.active {
-            background: #4080ff;
-            color: white;
-        }
-
-        .category-tab i {
-            font-size: 20px;
-        }
-
-        /* 内容区网格 */
-        .content-grid {
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 20px;
-        }
-
-        /* 热门推荐卡片 */
-        .hot-recommend {
-            background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(10px);
-            border-radius: 16px;
-            padding: 20px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-        }
-
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .card-header h3 {
-            font-size: 18px;
-            color: #333;
-        }
-
-        .card-header a {
-            color: #4080ff;
-            text-decoration: none;
-            font-size: 14px;
-        }
-
-        .recommend-list {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
-        }
-
-        .recommend-item {
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            text-align: center;
-            transition: all 0.2s ease;
-            border: 1px solid #eee;
-        }
-
-        .recommend-item:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
-        }
-
-        .recommend-item .icon {
-            width: 60px;
-            height: 60px;
-            border-radius: 12px;
-            margin: 0 auto 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            color: white;
-        }
-
-        .recommend-item .icon.chatgpt { background: #10a37f; }
-        .recommend-item .icon.midjourney { background: #2081ff; }
-        .recommend-item .icon.notion { background: #000; }
-        .recommend-item .icon.canva { background: #00c4cc; }
-        .recommend-item .icon.runway { background: #ff4d4f; }
-        .recommend-item .icon.github { background: #24292e; }
-
-        .recommend-item h4 {
-            font-size: 16px;
-            color: #333;
-            margin-bottom: 8px;
-        }
-
-        .recommend-item p {
-            font-size: 12px;
-            color: #666;
-            margin-bottom: 10px;
-            line-height: 1.4;
-        }
-
-        .recommend-item .tag {
-            font-size: 12px;
-            padding: 3px 10px;
-            border-radius: 12px;
-            background: #f0f4ff;
-            color: #4080ff;
-        }
-
-        /* 右侧小卡片 */
-        .right-column {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        .side-card {
-            background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(10px);
-            border-radius: 16px;
-            padding: 20px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-        }
-
-        .new-tools-list,
-        .rank-list,
-        .community-list {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        .new-tool-item,
-        .rank-item,
-        .community-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .new-tool-item .icon,
-        .rank-item .icon {
-            width: 32px;
-            height: 32px;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 14px;
-        }
-
-        .new-tool-item .info,
-        .rank-item .info,
-        .community-item .info {
-            flex: 1;
-        }
-
-        .new-tool-item .info h4,
-        .rank-item .info h4,
-        .community-item .info h4 {
-            font-size: 14px;
-            color: #333;
-            margin-bottom: 4px;
-        }
-
-        .new-tool-item .info p,
-        .rank-item .info p,
-        .community-item .info p {
-            font-size: 12px;
-            color: #666;
-        }
-
-        .rank-item .num {
-            font-size: 14px;
-            font-weight: bold;
-            color: #4080ff;
-            width: 20px;
-        }
-
-        .community-item .avatar {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            background: #f0f4ff;
-        }
-
-        .community-item .hot {
-            font-size: 12px;
-            color: #ff4d4f;
-        }
-
-        /* 底部猫咪装饰 */
-        .cat-decoration {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            width: 120px;
-        }
-
-        /* 响应式适配 */
-        @media (max-width: 1200px) {
-            .content-grid {
-                grid-template-columns: 1fr;
-            }
-            .recommend-list {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-
-        @media (max-width: 768px) {
-            body {
-                flex-direction: column;
-                padding: 10px;
-            }
-            .sidebar {
-                width: 100%;
-                flex-direction: row;
-                overflow-x: auto;
-                gap: 10px;
-                padding: 10px;
-            }
-            .header {
-                flex-direction: column;
-            }
-            .header-right {
-                flex-direction: row;
-                width: 100%;
-            }
-            .weather-card, .clock-card {
-                width: 100%;
-            }
-            .recommend-list {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
-</head>
-<body>
-    <!-- 左侧导航栏 -->
-    <div class="sidebar">
-        <div class="sidebar-logo">
-            <span>🤖</span>
-            <span>AI猫导航</span>
-        </div>
-        <div class="sidebar-menu">
-            <a href="#" class="active">🏠 首页</a>
-            <a href="#">🤖 AI工具</a>
-            <a href="#">📦 工具分类</a>
-            <a href="#">🏆 精选榜单</a>
-            <a href="#">✨ 新工具</a>
-            <a href="#">📚 资源教程</a>
-            <a href="#">💬 社区分享</a>
-            <a href="#">⭐ 我的收藏</a>
-        </div>
-        <div class="sidebar-footer">
-            <div class="cat-tip">
-                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=cat" alt="喵导航">
-                <p>Hi~ 我是导航喵<br>我会帮你找到最合适的AI工具哦！</p>
-                <button class="random-btn">🎲 随机探索</button>
-            </div>
-        </div>
+// ================= 主页面 =================
+export default function App() {
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-[#eef2ff] to-[#f8fafc] p-6 font-sans">
+      <div className="grid grid-cols-[260px_1fr] gap-6">
+        <Sidebar />
+        <Main />
+      </div>
     </div>
+  );
+}
 
-    <!-- 主内容区 -->
-    <div class="main">
-        <!-- 顶部区域 -->
-        <div class="header">
-            <div class="header-left">
-                <div class="header-cat">
-                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=kitten" alt="小猫">
-                </div>
-                <div class="header-title">
-                    <h1>发现最佳 <span style="color:#4080ff">AI</span> 工具，提升你的效率</h1>
-                    <p>精选全球优质AI工具，助力学习、工作与生活</p>
-                </div>
-                <div class="header-search">
-                    <input type="text" placeholder="搜索你想要的AI工具，例如：ChatGPT、Midjourney、Notion AI...">
-                    <button>🔍</button>
-                </div>
-                <div class="category-tabs">
-                    <div class="category-tab active">
-                        <i>✏️</i>
-                        <span>写作助手</span>
-                    </div>
-                    <div class="category-tab">
-                        <i>🖼️</i>
-                        <span>图像生成</span>
-                    </div>
-                    <div class="category-tab">
-                        <i>🎬</i>
-                        <span>视频制作</span>
-                    </div>
-                    <div class="category-tab">
-                        <i>💻</i>
-                        <span>代码编程</span>
-                    </div>
-                    <div class="category-tab">
-                        <i>🎨</i>
-                        <span>设计创作</span>
-                    </div>
-                    <div class="category-tab">
-                        <i>⚡</i>
-                        <span>效率工具</span>
-                    </div>
-                    <div class="category-tab">
-                        <i>🎓</i>
-                        <span>学习教育</span>
-                    </div>
-                    <div class="category-tab">
-                        <i>⊞</i>
-                        <span>更多分类</span>
-                    </div>
-                </div>
-            </div>
-            <div class="header-right">
-                <div class="weather-card">
-                    <div class="weather-top">
-                        <div>
-                            <p>上海市 · 晴朗</p>
-                            <div class="weather-temp">26°</div>
-                        </div>
-                        <div>☀️</div>
-                    </div>
-                    <div class="weather-info">
-                        <span>🍃 空气优 32</span>
-                        <span>💧 湿度 42%</span>
-                    </div>
-                    <div class="weather-days">
-                        <div>
-                            <p>今天</p>
-                            <p>🌤️</p>
-                            <p>26°/16°</p>
-                        </div>
-                        <div>
-                            <p>明天</p>
-                            <p>☁️</p>
-                            <p>25°/17°</p>
-                        </div>
-                        <div>
-                            <p>周五</p>
-                            <p>🌧️</p>
-                            <p>23°/15°</p>
-                        </div>
-                        <div>
-                            <p>周六</p>
-                            <p>🌧️</p>
-                            <p>22°/14°</p>
-                        </div>
-                        <div>
-                            <p>周日</p>
-                            <p>☀️</p>
-                            <p>24°/16°</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="clock-card">
-                    <div class="clock-time" id="clock">10:24:36</div>
-                    <div class="clock-date" id="date">2024年5月15日 星期三</div>
-                </div>
-            </div>
+// ================= Sidebar =================
+function Sidebar() {
+  return (
+    <div className="bg-white/70 backdrop-blur-xl rounded-3xl p-5 shadow-xl">
+      <div className="text-xl font-bold text-indigo-600 mb-6 flex items-center gap-2">
+        🐱 AI猫导航
+      </div>
+
+      {['首页','AI工具','分类','榜单'].map((item,i)=> (
+        <div key={i} className="p-3 rounded-xl hover:bg-white/80 cursor-pointer">
+          {item}
         </div>
+      ))}
 
-        <!-- 内容网格 -->
-        <div class="content-grid">
-            <!-- 热门推荐 -->
-            <div class="hot-recommend">
-                <div class="card-header">
-                    <h3>🔥 热门推荐</h3>
-                    <a href="#">查看全部 ></a>
-                </div>
-                <div class="recommend-list">
-                    <div class="recommend-item">
-                        <div class="icon chatgpt">🤖</div>
-                        <h4>ChatGPT</h4>
-                        <p>强大的AI对话助手，回答问题，解决各种任务</p>
-                        <span class="tag">对话聊天</span>
-                    </div>
-                    <div class="recommend-item">
-                        <div class="icon midjourney">🚢</div>
-                        <h4>Midjourney</h4>
-                        <p>AI图像生成工具，创造精美的艺术作品</p>
-                        <span class="tag">图像生成</span>
-                    </div>
-                    <div class="recommend-item">
-                        <div class="icon notion">📝</div>
-                        <h4>Notion AI</h4>
-                        <p>智能笔记与内容创作，提升工作效率</p>
-                        <span class="tag">写作助手</span>
-                    </div>
-                    <div class="recommend-item">
-                        <div class="icon canva">🎨</div>
-                        <h4>Canva AI</h4>
-                        <p>智能设计工具，轻松创建精美设计</p>
-                        <span class="tag">设计创作</span>
-                    </div>
-                    <div class="recommend-item">
-                        <div class="icon runway">🎬</div>
-                        <h4>Runway</h4>
-                        <p>AI视频创作与编辑，让创作更简单</p>
-                        <span class="tag">视频制作</span>
-                    </div>
-                    <div class="recommend-item">
-                        <div class="icon github">💻</div>
-                        <h4>GitHub Copilot</h4>
-                        <p>AI编程助手，提升开发效率</p>
-                        <span class="tag">代码编程</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 右侧小卡片 -->
-            <div class="right-column">
-                <div class="side-card">
-                    <div class="card-header">
-                        <h3>🆕 新工具发现</h3>
-                        <span style="font-size:12px;color:#666">NEW</span>
-                    </div>
-                    <div class="new-tools-list">
-                        <div class="new-tool-item">
-                            <div class="icon" style="background:#1a1a1a">🔍</div>
-                            <div class="info">
-                                <h4>Perplexity AI</h4>
-                                <p>AI搜索引擎，提供准确的答案和引用</p>
-                            </div>
-                            <span style="font-size:12px;color:#666">刚刚</span>
-                        </div>
-                        <div class="new-tool-item">
-                            <div class="icon" style="background:#000">✏️</div>
-                            <div class="info">
-                                <h4>Claude 3</h4>
-                                <p>由Anthropic提供的AI助手</p>
-                            </div>
-                            <span style="font-size:12px;color:#666">2小时前</span>
-                        </div>
-                        <div class="new-tool-item">
-                            <div class="icon" style="background:#6633ff">📊</div>
-                            <div class="info">
-                                <h4>Tome</h4>
-                                <p>AI驱动的演示文稿制作工具</p>
-                            </div>
-                            <span style="font-size:12px;color:#666">5小时前</span>
-                        </div>
-                        <div class="new-tool-item">
-                            <div class="icon" style="background:#0099ff">🎥</div>
-                            <div class="info">
-                                <h4>Luma AI</h4>
-                                <p>高质量3D内容生成平台</p>
-                            </div>
-                            <span style="font-size:12px;color:#666">昨天</span>
-                        </div>
-                    </div>
-                    <a href="#" style="display:block;text-align:center;color:#4080ff;text-decoration:none;font-size:14px;margin-top:15px">查看更多新工具 ></a>
-                </div>
-
-                <div class="side-card">
-                    <div class="card-header">
-                        <h3>🏆 工具榜单</h3>
-                        <div style="display:flex;gap:10px">
-                            <span style="font-size:12px;padding:3px 8px;border-radius:12px;background:#f0f4ff;color:#4080ff">周榜</span>
-                            <span style="font-size:12px;color:#666">月榜</span>
-                            <span style="font-size:12px;color:#666">总榜</span>
-                        </div>
-                    </div>
-                    <div class="rank-list">
-                        <div class="rank-item">
-                            <span class="num">1</span>
-                            <div class="icon" style="background:#10a37f">🤖</div>
-                            <div class="info">
-                                <h4>ChatGPT</h4>
-                                <p>9.8</p>
-                            </div>
-                        </div>
-                        <div class="rank-item">
-                            <span class="num">2</span>
-                            <div class="icon" style="background:#2081ff">🚢</div>
-                            <div class="info">
-                                <h4>Midjourney</h4>
-                                <p>9.6</p>
-                            </div>
-                        </div>
-                        <div class="rank-item">
-                            <span class="num">3</span>
-                            <div class="icon" style="background:#000">📝</div>
-                            <div class="info">
-                                <h4>Notion AI</h4>
-                                <p>9.4</p>
-                            </div>
-                        </div>
-                        <div class="rank-item">
-                            <span class="num">4</span>
-                            <div class="icon" style="background:#00c4cc">🎨</div>
-                            <div class="info">
-                                <h4>Canva AI</h4>
-                                <p>9.2</p>
-                            </div>
-                        </div>
-                        <div class="rank-item">
-                            <span class="num">5</span>
-                            <div class="icon" style="background:#ff4d4f">✏️</div>
-                            <div class="info">
-                                <h4>Claude 3</h4>
-                                <p>9.0</p>
-                            </div>
-                        </div>
-                    </div>
-                    <a href="#" style="display:block;text-align:center;color:#4080ff;text-decoration:none;font-size:14px;margin-top:15px">查看更多榜单 ></a>
-                </div>
-
-                <div class="side-card">
-                    <div class="card-header">
-                        <h3>💬 社区热门</h3>
-                    </div>
-                    <div class="community-list">
-                        <div class="community-item">
-                            <div class="avatar"></div>
-                            <div class="info">
-                                <h4>分享我用AI做的插画作品</h4>
-                                <p>使用Midjourney和Photoshop结合创作</p>
-                            </div>
-                            <span class="hot">🔥 128</span>
-                        </div>
-                        <div class="community-item">
-                            <div class="avatar"></div>
-                            <div class="info">
-                                <h4>如何用AI提高工作效率？</h4>
-                                <p>分享一些实用的AI工具组合</p>
-                            </div>
-                            <span class="hot">🔥 96</span>
-                        </div>
-                        <div class="community-item">
-                            <div class="avatar"></div>
-                            <div class="info">
-                                <h4>AI写作工具大比拼</h4>
-                                <p>实测多款AI写作工具的体验</p>
-                            </div>
-                            <span class="hot">🔥 75</span>
-                        </div>
-                    </div>
-                    <a href="#" style="display:block;text-align:center;color:#4080ff;text-decoration:none;font-size:14px;margin-top:15px">查看更多讨论 ></a>
-                </div>
-            </div>
-        </div>
+      <div className="mt-10 p-4 bg-indigo-50 rounded-2xl text-sm">
+        <div className="font-semibold">喵～需要帮助吗？</div>
+        <div className="text-gray-500 mt-1">我可以帮你找AI工具</div>
+      </div>
     </div>
+  );
+}
 
-    <!-- 猫咪装饰 -->
-    <div class="cat-decoration">
-        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=cat2" alt="小猫">
+// ================= Main =================
+function Main() {
+  return (
+    <div className="space-y-6">
+      <Header />
+      <DashboardGrid />
     </div>
+  );
+}
 
-    <script>
-        // 实时时钟
-        function updateClock() {
-            const now = new Date();
-            const hours = String(now.getHours()).padStart(2, '0');
-            const minutes = String(now.getMinutes()).padStart(2, '0');
-            const seconds = String(now.getSeconds()).padStart(2, '0');
-            document.getElementById('clock').textContent = `${hours}:${minutes}:${seconds}`;
+// ================= Header =================
+function Header() {
+  return (
+    <div className="bg-white/70 backdrop-blur-xl rounded-3xl p-6 shadow-xl">
+      <h1 className="text-4xl font-bold">
+        发现最佳 <span className="text-indigo-500">AI工具</span>
+      </h1>
 
-            const dateOptions = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' };
-            document.getElementById('date').textContent = now.toLocaleDateString('zh-CN', dateOptions);
-        }
-        setInterval(updateClock, 1000);
-        updateClock();
+      <div className="mt-4 flex items-center bg-white rounded-xl p-3 shadow-inner">
+        <Search className="text-gray-400" />
+        <input className="ml-3 w-full outline-none" placeholder="搜索 AI 工具..." />
+      </div>
+    </div>
+  );
+}
 
-        // 搜索功能
-        document.querySelector('.header-search button').addEventListener('click', function() {
-            const keyword = document.querySelector('.header-search input').value;
-            if (keyword.trim() !== '') {
-                window.open(`https://www.baidu.com/s?wd=${encodeURIComponent(keyword)}`);
-            }
-        });
+// ================= Dashboard =================
+function DashboardGrid() {
+  return (
+    <div className="grid grid-cols-3 gap-6">
+      <Tools />
+      <Weather />
+      <Clock />
+    </div>
+  );
+}
 
-        document.querySelector('.header-search input').addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') {
-                const keyword = this.value;
-                if (keyword.trim() !== '') {
-                    window.open(`https://www.baidu.com/s?wd=${encodeURIComponent(keyword)}`);
-                }
-            }
-        });
-    </script>
-</body>
-</html>
+// ================= 工具卡 =================
+function Tools() {
+  const tools = ['ChatGPT','Midjourney','Notion AI','Runway'];
+
+  return (
+    <div className="col-span-2 bg-white/70 backdrop-blur-xl rounded-3xl p-5 shadow-xl">
+      <div className="flex items-center gap-2 mb-4">
+        <Flame className="text-orange-400" /> 热门工具
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        {tools.map((t,i)=>(
+          <motion.div
+            whileHover={{ y:-5 }}
+            key={i}
+            className="p-4 bg-white rounded-xl shadow hover:shadow-lg cursor-pointer"
+          >
+            <div className="text-lg font-semibold">{t}</div>
+            <div className="text-sm text-gray-500 mt-1">AI工具描述</div>
+          </motion.div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ================= 天气 =================
+function Weather() {
+  return (
+    <div className="bg-white/70 backdrop-blur-xl rounded-3xl p-5 shadow-xl">
+      <div className="flex items-center gap-2 mb-2">
+        <Sparkles /> 天气
+      </div>
+
+      <div className="text-4xl font-light">26° ☀️</div>
+      <div className="text-gray-500 text-sm">晴 · 湿度42%</div>
+    </div>
+  );
+}
+
+// ================= 时钟 =================
+function Clock() {
+  const [time,setTime] = useState(new Date());
+
+  useEffect(()=>{
+    const t = setInterval(()=>setTime(new Date()),1000);
+    return ()=>clearInterval(t);
+  },[]);
+
+  return (
+    <div className="bg-white/70 backdrop-blur-xl rounded-3xl p-5 shadow-xl text-center">
+      <div className="text-sm text-gray-500">时钟</div>
+      <div className="text-3xl mt-2">
+        {time.toLocaleTimeString()}
+      </div>
+    </div>
+  );
+}
+
